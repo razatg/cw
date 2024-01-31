@@ -7,11 +7,13 @@ import { Inbox, Key, Loader2 } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useRouter } from 'next/navigation';
 
 const FileUpload = () =>{
+    const router = useRouter();
     const [uploading, setUploading] = React.useState(false);
 
-    const {mutate, isLoading} = useMutation({
+    const {mutate, isPending} = useMutation({
         mutationFn: async ({file_key, file_name}: {file_key:string, file_name:string} ) => {
             const response = await axios.post('/api/create-chat', {file_key, file_name});
             return response.data;
@@ -33,14 +35,14 @@ const FileUpload = () =>{
             try {
                 setUploading(true);
                 const data = await uploadToS3(file);
-                console.log("data", data);
+                console.log("meow", data);
                 if (!data?.file_key || !data.file_name){
-                    toast.error("something went wrong");
+                    toast.error("something went wrong");    
                     return;
                 }
                 mutate(data, {
                     onSuccess: (data) => {
-                        console.log(data);
+                        console.log("billi", data);
                         toast.success(data.message);
                     },
                     onError: (err) => {
@@ -62,7 +64,7 @@ const FileUpload = () =>{
             className = "border-dashed border-2 rounded-x1 cursor-pointer bg-gray-59 py-8 flex justify-center items-center flex-col"
             >
                 <input {...getInputProps()}/>
-                {uploading || isLoading ? (
+                {uploading || isPending ? (
                     <>
                     <Loader2 className='h-10 w-10 text-blue-500 animate-spin'/>
                     <p className='mt-2 text-sm text-slate-400'>
